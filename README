@@ -1,9 +1,10 @@
 TODO:
+0. multithread adding (hot)
 1. drop authors
 2. drop publishers
 3. merge authors
 4. merge publishers
-5. view auth info
+5. view auth info (hot)
 6. view pub info
 7. rename file by tags
-8. multiadd pattern
+8. maddwidget regexp pattern for extrating metainfo on-air (hot)

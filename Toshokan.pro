@@ -34,3 +34,6 @@ FORMS    += \
 
 RESOURCES += \
     toshores.qrc
+
+OTHER_FILES += \
+    README
