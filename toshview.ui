@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>381</height>
+    <width>534</width>
+    <height>288</height>
    </rect>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -84,7 +84,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>573</width>
+     <width>534</width>
      <height>23</height>
     </rect>
    </property>
@@ -94,42 +94,12 @@
     </property>
     <addaction name="actionAdd_new_book"/>
    </widget>
-   <widget class="QMenu" name="menuInfo">
-    <property name="title">
-     <string>Info</string>
-    </property>
-    <addaction name="actionHelp"/>
-    <addaction name="actionAbout_Qt"/>
-    <addaction name="actionAbout"/>
-   </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-   </widget>
    <addaction name="menuEdit"/>
-   <addaction name="menuTools"/>
-   <addaction name="menuInfo"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionAdd_new_book">
    <property name="text">
     <string>Add new book</string>
-   </property>
-  </action>
-  <action name="actionAbout_Qt">
-   <property name="text">
-    <string>About Qt</string>
-   </property>
-  </action>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About</string>
-   </property>
-  </action>
-  <action name="actionHelp">
-   <property name="text">
-    <string>Help</string>
    </property>
   </action>
  </widget>
