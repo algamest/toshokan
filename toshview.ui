@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>288</height>
+    <width>708</width>
+    <height>304</height>
    </rect>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -74,7 +74,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="BookShow" name="bookwidget" native="true"/>
      </widget>
     </item>
    </layout>
@@ -84,8 +83,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>534</width>
-     <height>23</height>
+     <width>708</width>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuEdit">
@@ -103,14 +102,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>BookShow</class>
-   <extends>QWidget</extends>
-   <header location="global">bookshow.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -31,22 +31,11 @@ ToshView::ToshView(QWidget *parent) :
     //stretching last section in ui-file
     ui->tableView->setSortingEnabled(true);
 
-    ui->bookwidget->hide();
-
     QObject::connect(ui->actionAdd_new_book, SIGNAL(triggered()), this, SLOT(addBook()));
     QObject::connect(ui->searchLine, SIGNAL(returnPressed()), this, SLOT(findBook()));
     QObject::connect(ui->comboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(updateList(QString)));
     QObject::connect(ui->listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(updateTable(QModelIndex)));
-    QObject::connect(ui->tableView, SIGNAL(clicked(QModelIndex)), this, SLOT(showBookInfo(QModelIndex)));
-
-    QObject::connect(ui->bookwidget, SIGNAL(bookDeleted()), this, SLOT(refreshModels()));
-    QObject::connect(ui->bookwidget, SIGNAL(bookDeleted()), ui->bookwidget, SLOT(hide()));
-    QObject::connect(ui->bookwidget, SIGNAL(bookSubmitted()), this, SLOT(refreshModels()));
-    QObject::connect(ui->bookwidget, SIGNAL(bookSubmitted()), ui->bookwidget, SLOT(hide()));
-
-    QObject::connect(ui->bookwidget, SIGNAL(linkAuthActivated(QString)), this, SLOT(updateAuthLink(QString)));
-    QObject::connect(ui->bookwidget, SIGNAL(linkPubActivated(QString)), this, SLOT(updatePubLink(QString)));
-    QObject::connect(ui->bookwidget, SIGNAL(linkSerActivated(QString)), this, SLOT(updateSerLink(QString)));
+    QObject::connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showBookInfo(QModelIndex)));
 }
 
 ToshView::~ToshView()
@@ -260,8 +249,22 @@ void ToshView::showBookInfo(const QModelIndex &index)
     if(q.exec() && q.next())
         book_id = q.value(0).toInt();
 
-    ui->bookwidget->setInfo(book_id);
-    ui->bookwidget->show();
+
+    BookShow *bookwidget = new BookShow(this);
+    QMainWindow *bwindow = new QMainWindow(this);
+
+    QObject::connect(bookwidget, SIGNAL(bookDeleted()), this, SLOT(refreshModels()));
+    QObject::connect(bookwidget, SIGNAL(bookDeleted()), bwindow, SLOT(close()));
+    QObject::connect(bookwidget, SIGNAL(bookSubmitted()), this, SLOT(refreshModels()));
+    QObject::connect(bookwidget, SIGNAL(bookSubmitted()), bwindow, SLOT(close()));
+
+    QObject::connect(bookwidget, SIGNAL(linkAuthActivated(QString)), this, SLOT(updateAuthLink(QString)));
+    QObject::connect(bookwidget, SIGNAL(linkPubActivated(QString)), this, SLOT(updatePubLink(QString)));
+    QObject::connect(bookwidget, SIGNAL(linkSerActivated(QString)), this, SLOT(updateSerLink(QString)));
+
+    bookwidget->setInfo(book_id);
+    bwindow->setCentralWidget(bookwidget);
+    bwindow->show();
 }
 
 void ToshView::findBook()

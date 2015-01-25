@@ -103,5 +103,5 @@ void BookShow::openBook()
     q.bindValue(":id", book_id);
     q.exec();
     if(q.next())
-        QDesktopServices::openUrl(QUrl::fromLocalFile(q.value(0).toString());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(q.value(0).toString()));
 }

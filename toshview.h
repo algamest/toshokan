@@ -1,6 +1,8 @@
 #ifndef TOSHVIEW_H
 #define TOSHVIEW_H
 
+#include "bookshow.h"
+
 #include <QMainWindow>
 #include <QStringListModel>
 #include <QtSql/QSqlQueryModel>
