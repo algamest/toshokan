@@ -155,7 +155,7 @@ void MAddWidget::on_processButton_clicked()
         q.bindValue(":aid", auth_id);
         q.bindValue(":bid", book_id);
         if(q.exec())
-           win++;
+            win++;
     }
 
     QMessageBox::information(this, "Success",

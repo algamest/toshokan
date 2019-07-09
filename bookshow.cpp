@@ -27,7 +27,7 @@ BookShow::~BookShow()
     delete ui;
 }
 
-void BookShow::setInfo(const int &id)
+void BookShow::setInfo(int id)
 {
     book_id = id;
 

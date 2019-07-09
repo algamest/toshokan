@@ -358,16 +358,6 @@
    <item row="8" column="0" colspan="4">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="fetchButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Fetch</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -452,7 +442,6 @@
   <tabstop>yearLine</tabstop>
   <tabstop>langBox</tabstop>
   <tabstop>isbnLine</tabstop>
-  <tabstop>fetchButton</tabstop>
   <tabstop>submitButton</tabstop>
  </tabstops>
  <resources/>

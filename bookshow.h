@@ -15,7 +15,7 @@ public:
     explicit BookShow(QWidget *parent = 0);
     ~BookShow();
 
-    void setInfo(const int &id);
+    void setInfo(int id);
 
 private:
     Ui::BookShow *ui;

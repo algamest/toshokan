@@ -329,9 +329,3 @@ void SAddWidget::deleteAuthor(const QModelIndex &index)
 {
     authmodel->removeRow(index.row());
 }
-
-void SAddWidget::on_fetchButton_clicked()
-{
-//    QString ISBN = QInputDialog::getText(this, "Fetch data from WorldCat", tr("Book ISBN:"));
-//    fetchWorldCat(ISBN);
-}

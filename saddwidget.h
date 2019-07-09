@@ -7,12 +7,8 @@
 #include <QStringList>
 #include <QStringListModel>
 
-class Book
+struct Book
 {
-public:
-    Book() {}
-    ~Book() {}
-
     QString file_path;
     QString file_ext;
 
@@ -25,21 +21,6 @@ public:
     int edition;
     int volume;
     QString isbn;
-};
-
-class Issue
-{
-    Issue() {}
-    ~Issue() {}
-
-    QString magazine;
-    QString title;
-    QStringList authors;
-    QString publisher;
-    QString language;
-    int year;
-    int number;
-    QString issn;
 };
 
 //=books=//
@@ -63,7 +44,6 @@ public:
 private slots:
     void on_getfileButton_clicked();
     void on_submitButton_clicked();
-    void on_fetchButton_clicked();
 
 private:
     Ui::SAddWidget *ui;
