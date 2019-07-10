@@ -60,12 +60,10 @@ void ToshView::addBook()
 void ToshView::updateList(const QString &str)
 {
     QStringList list;
-    QSqlQuery q;
 
     if(str == "Publishers")
     {
-        q.prepare("SELECT Pub_ID, Publisher FROM Publishers ORDER BY Publisher ASC");
-        q.exec();
+        QSqlQuery q("SELECT Pub_ID, Publisher FROM Publishers ORDER BY Publisher ASC");
         while(q.next())
         {
             QSqlQuery y;
@@ -80,19 +78,10 @@ void ToshView::updateList(const QString &str)
     }
     if(str == "Year")
     {
-        q.prepare("SELECT DISTINCT Year FROM Books ORDER BY Year ASC");
-        q.exec();
+        QSqlQuery q("SELECT Year, count(*) as count FROM Books GROUP BY Year ORDER BY Year ASC");
         while(q.next())
-        {
-            QSqlQuery y;
-            y.prepare("SELECT NULL FROM Books WHERE Year = :y");
-            y.bindValue(":y", q.value(0).toInt());
-            y.exec();
-            int i = 0;
-            while(y.next())
-                ++i;
-            list.append(QString("%1\t(%2)").arg(q.value(0).toInt()).arg(i));
-        }
+            list.append(QString("%1\t(%2)").arg(q.value(0).toString())
+                        .arg(q.value(1).toInt()));
     }
     if(str == "Authors")
     {
@@ -104,59 +93,19 @@ void ToshView::updateList(const QString &str)
             list.append(author);
         }
     }
-    if(str == "Titles") // TODO add ukr letters
+    if(str == "Titles")
     {
-        for(int code = 0x0030; code <= 0x0039; code++) // Digits
-        {
-            QChar qc(code);
-            q.exec(QString("SELECT NULL FROM Books WHERE Title LIKE '%1%'").arg(qc));
-            int i = 0;
-            while(q.next())
-                ++i;
-            if(!i)
-                continue;
-            list.append(QString("%1\t(%2)").arg(qc).arg(i));
-        }
-
-        for(int code = 0x0041; code <= 0x005A; code++) // Latin
-        {
-            QChar qc(code);
-            q.exec(QString("SELECT NULL FROM Books WHERE Title LIKE '%1%'").arg(qc));
-            int i = 0;
-            while(q.next())
-                ++i;
-            if(!i)
-                continue;
-            list.append(QString("%1\t(%2)").arg(qc).arg(i));
-        }
-
-        for(int code = 0x0400; code <= 0x04FF; code++) // Cyrillic
-        {
-            QChar qc(code);
-            q.exec(QString("SELECT NULL FROM Books WHERE Title LIKE '%1%'").arg(qc));
-            int i = 0;
-            while(q.next())
-                ++i;
-            if(!i)
-                continue;
-            list.append(QString("%1\t(%2)").arg(qc).arg(i));
-        }
+        QSqlQuery q("SELECT substr(Title, 1, 1) AS first_letter, count(*) AS total FROM Books GROUP BY first_letter ORDER BY first_letter ASC");
+        while(q.next())
+            list.append(QString("%1\t(%2)").arg(q.value(0).toString())
+                        .arg(q.value(1).toInt()));
     }
     if(str == "Series")
     {
-        q.prepare("SELECT DISTINCT Series FROM Books ORDER BY Series ASC");
-        q.exec();
+        QSqlQuery q("SELECT Series, count(*) as count FROM Books GROUP BY Series ORDER BY Series ASC");
         while(q.next())
-        {
-            QSqlQuery y;
-            y.prepare("SELECT NULL FROM Books WHERE Series = :s");
-            y.bindValue(":s", q.value(0).toString());
-            y.exec();
-            int i = 0;
-            while(y.next())
-                ++i;
-            list.append(QString("%1\t(%2)").arg(q.value(0).toString()).arg(i));
-        }
+            list.append(QString("%1\t(%2)").arg(q.value(0).toString())
+                        .arg(q.value(1).toInt()));
     }
 
     listmodel->setStringList(list);
