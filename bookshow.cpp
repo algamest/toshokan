@@ -40,12 +40,12 @@ void BookShow::setInfo(int id)
     {
         QStringList auth;
         QSqlQuery y;
-        y.prepare("SELECT Name, Middle, Surname FROM Authors WHERE Auth_ID IN\
-                   (SELECT Auth_ID FROM Author_Book WHERE Book_ID = :id)");
+        y.prepare("SELECT Author FROM Authors WHERE Auth_ID IN\
+                  (SELECT Auth_ID FROM Author_Book WHERE Book_ID = :id)");
         y.bindValue(":id", book_id);
         y.exec();
         while(y.next())
-            auth << QString("<a href=\"%1 %2 %3\">%1 %2 %3</a>").arg(y.value(0).toString()).arg(y.value(1).toString()).arg(y.value(2).toString());
+            auth << QString("<a href=\"%1\">%1</a>").arg(y.value(0).toString());
 
         ui->authLine->setText(auth.join(", "));
         ui->titleLine->setText(q.value("Title").toString());

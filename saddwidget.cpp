@@ -92,7 +92,7 @@ void SAddWidget::on_submitButton_clicked()
         book->title = ui->titleLine->text();
 
     if(authmodel->stringList().isEmpty())
-        book->authors << "Unknown Unknown Unknown";
+        book->authors << "Unknown Unknown";
     else
         book->authors = authmodel->stringList();
 
@@ -178,19 +178,13 @@ void SAddWidget::submitBook()
 
     foreach(QString entry, book->authors)
     {
-        QStringList NMS(entry.split(" "));
-
-        q.prepare("SELECT NULL FROM Authors WHERE Name = :name AND Middle = :mid AND Surname = :sur");
-        q.bindValue(":name", NMS[0]);
-        q.bindValue(":mid", NMS[1]);
-        q.bindValue(":sur", NMS[2]);
+        q.prepare("SELECT NULL FROM Authors WHERE Name = :auth");
+        q.bindValue(":auth", entry);
         q.exec();
         if(!q.next())
         {
-            q.prepare("INSERT INTO Authors(Name, Middle, Surname) Values(:name, :mid, :sur)");
-            q.bindValue(":name", NMS[0]);
-            q.bindValue(":mid", NMS[1]);
-            q.bindValue(":sur", NMS[2]);
+            q.prepare("INSERT INTO Authors(Author) Values(:auth)");
+            q.bindValue(":auth", entry);
             if(!q.exec())
             {
                 QMessageBox::critical(this, "Failure", QString("Errors were occured(author):\n%1").arg(q.lastError().text()));
@@ -200,10 +194,8 @@ void SAddWidget::submitBook()
         }
 
         int auth_id = -1;
-        q.prepare("SELECT Auth_ID FROM Authors WHERE Name = :name AND Middle = :mid AND Surname = :sur");
-        q.bindValue(":name", NMS[0]);
-        q.bindValue(":mid", NMS[1]);
-        q.bindValue(":sur", NMS[2]);
+        q.prepare("SELECT Auth_ID FROM Authors WHERE Author = :auth");
+        q.bindValue(":auth", entry);
         if(q.exec() && q.next())
             auth_id = q.value(0).toInt();
 
@@ -242,9 +234,9 @@ void SAddWidget::refreshBoxes()
     sercomp->setModel(new QStringListModel(scomplist, this));
 
     QStringList acomplist;
-    q.exec("SELECT Name, Middle, Surname FROM Authors");
+    q.exec("SELECT Author FROM Authors");
     while(q.next())
-        acomplist << QString("%1 %2 %3").arg(q.value(0).toString()).arg(q.value(1).toString()).arg(q.value(2).toString());
+        acomplist << q.value(0).toString();
     authcomp->setModel(new QStringListModel(acomplist, this));
 }
 
@@ -278,13 +270,13 @@ void SAddWidget::fillFields()
         ui->titleLine->setText(q.value("Title").toString());
 
         QSqlQuery y;
-        y.prepare("SELECT Name, Middle, Surname FROM Authors WHERE Auth_ID IN \
-                  (SELECT Auth_ID FROM Author_Book WHERE Book_ID = :id)");
+        y.prepare("SELECT Author FROM Authors WHERE Auth_ID IN "
+                  "(SELECT Auth_ID FROM Author_Book WHERE Book_ID = :id)");
         y.bindValue(":id", book_id);
         y.exec();
         QStringList auth;
         while(y.next())
-            auth << QString("%1 %2 %3").arg(y.value(0).toString()).arg(y.value(1).toString()).arg(y.value(2).toString());
+            auth << y.value(0).toString();
         authmodel->setStringList(auth);
 
         ui->volBox->setValue(q.value("Volume").toInt());
@@ -306,20 +298,13 @@ void SAddWidget::addAuthor()
     }
 
     QStringList NMS = ui->authLine->text().trimmed().split(" ");
-    QString name, sur, mid;
 
-    name = NMS.front();
-    NMS.removeFirst();
-    if(!NMS.isEmpty())
-    {
-        sur = NMS.back();
-        NMS.removeLast();
-    }
-    if(!NMS.isEmpty())
-        mid = NMS.join(" ");
+    auto sur = NMS.back();
+    NMS.pop_back();
+    auto name = NMS.join(" ");
 
     QStringList t = authmodel->stringList();
-    t << QString("%1 %2 %3").arg(name).arg(mid).arg(sur);
+    t << QString("%1 %2").arg(name).arg(sur);
     authmodel->setStringList(t);
 
     ui->authLine->clear();

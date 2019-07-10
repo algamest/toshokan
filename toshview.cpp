@@ -96,10 +96,13 @@ void ToshView::updateList(const QString &str)
     }
     if(str == "Authors")
     {
-        q.prepare("SELECT Auth_ID, Name, Middle, Surname FROM Authors ORDER BY Surname ASC");
-        q.exec();
+        QSqlQuery q("SELECT Author FROM Authors ORDER BY substr(Author, instr(Author, ' ')) ASC");
         while(q.next())
-            list.append(QString("%1, %2 %3").arg(q.value(3).toString()).arg(q.value(1).toString()).arg(q.value(2).toString()));
+        {
+            auto author = q.value(0).toString();
+            author.replace(QRegularExpression("(.+) ([^\\s]+)"), "\\2, \\1");
+            list.append(author);
+        }
     }
     if(str == "Titles") // TODO add ukr letters
     {
@@ -168,7 +171,7 @@ void ToshView::updateTable(const QModelIndex &index)
     {
         QString l = sender.split("\t").front();
         q = QString("SELECT Title,\
-                    (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                    (SELECT Author FROM Authors\
                      WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                     (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                      Series, Year, Language, ISBN FROM Books WHERE Title LIKE '%1%'").arg(l);
@@ -177,7 +180,7 @@ void ToshView::updateTable(const QModelIndex &index)
     {
         QString p = sender.split("\t").front();
         q = QString("SELECT Title,\
-                    (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                    (SELECT Author FROM Authors\
                      WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                      '%1' AS 'Publisher',\
                      Series, Year, Language, ISBN FROM Books\
@@ -187,20 +190,20 @@ void ToshView::updateTable(const QModelIndex &index)
     {
         QString y = sender.split("\t").front();
         q = QString("SELECT Title,\
-                    (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                    (SELECT Author FROM Authors\
                      WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                     (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                      Series, Year, Language, ISBN FROM Books WHERE Year = '%1'").arg(y);
     }
     if(ui->comboBox->currentText() == "Authors")
     {
-        QStringList SNM = sender.split(QRegExp("\\,?\\s"));
-        QString q_aid =
-                QString("SELECT Auth_ID FROM Authors WHERE Surname = '%1' AND Name = '%2'").arg(SNM[0]).arg(SNM[1]);//.arg(SNM[2]);
+        sender.replace(QRegularExpression("([^,]+), (.+)"), "\\2 \\1");
+        QString q_aid = QString("SELECT Auth_ID FROM Authors WHERE Author = '%1'").arg(sender);
         QString q_bid = QString("SELECT Book_ID FROM Author_Book WHERE Auth_ID IN (%1)").arg(q_aid);
 
+        // borked
         q = QString("SELECT Title,\
-                    (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                    (SELECT Author FROM Authors\
                      WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                     (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                      Series, Year, Language, ISBN FROM Books WHERE Book_ID IN (%1)").arg(q_bid);
@@ -209,7 +212,7 @@ void ToshView::updateTable(const QModelIndex &index)
     {
         QString s = sender.split("\t").front();
         q = QString("SELECT Title,\
-                    (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                    (SELECT Author FROM Authors\
                      WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                     (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                      Series, Year, Language, ISBN FROM Books WHERE Series = '%1'").arg(s);
@@ -223,7 +226,7 @@ void ToshView::refreshModels()
 {
     updateList(ui->comboBox->currentText());
     tablemodel->setQuery("SELECT Title,\
-                         (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                         (SELECT Author FROM Authors\
                           WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                          (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS 'Publisher',\
                           Series, Year, Language, ISBN FROM Books ORDER BY Title ASC");
@@ -275,7 +278,7 @@ void ToshView::findBook()
 
     QString q;
     q = QString("SELECT Title,\
-                (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                (SELECT Author FROM Authors\
                  WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                 (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS 'Publisher',\
                  Series, Year, Language, ISBN FROM Books\
@@ -286,14 +289,11 @@ void ToshView::findBook()
 
 void ToshView::updateAuthLink(const QString &link)
 {
-    QString q;
+    auto q_aid =
+            QString("SELECT Auth_ID FROM Authors WHERE Author = '%1'").arg(link);
+    auto q_bid = QString("SELECT Book_ID FROM Author_Book WHERE Auth_ID = (%1)").arg(q_aid);
 
-    QStringList NMS = link.split(" ");
-    QString q_aid =
-            QString("SELECT Auth_ID FROM Authors WHERE Name = '%1' AND Middle = '%2' AND Surname = '%3'").arg(NMS[0]).arg(NMS[1]).arg(NMS[2]);
-    QString q_bid = QString("SELECT Book_ID FROM Author_Book WHERE Auth_ID = (%1)").arg(q_aid);
-
-    q = QString("SELECT Title, (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
+    auto q = QString("SELECT Title, (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                  Series, Year, Language FROM Books WHERE Book_ID IN (%1)").arg(q_bid);
 
     q.append(" ORDER BY Title ASC");
@@ -305,7 +305,7 @@ void ToshView::updatePubLink(const QString &link)
     QString q;
 
     q = QString("SELECT Title,\
-                (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                (SELECT Author FROM Authors\
                  WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                  '%1' AS 'Publisher',\
                  Series, Year, Language FROM Books\
@@ -320,7 +320,7 @@ void ToshView::updateSerLink(const QString &link)
     QString q;
 
     q = QString("SELECT Title,\
-                (SELECT group_concat((Name || ' ' || Middle || ' ' || Surname), ', ') FROM Authors\
+                (SELECT Author FROM Authors\
                  WHERE Auth_ID IN (SELECT Auth_ID FROM Author_Book WHERE Book_ID = Books.Book_ID)) AS 'Author(s)',\
                 (SELECT Publisher FROM Publishers WHERE Pub_ID = Books.Pub_ID) AS Publisher,\
                  Year, Language FROM Books WHERE Series = '%1'").arg(link);

@@ -106,12 +106,12 @@ void MAddWidget::on_processButton_clicked()
     if(q.next())
         pub_id = q.value(0).toInt();
 
-    q.exec("SELECT NULL FROM Authors WHERE Surname = 'Unknown'");
+    q.exec("SELECT NULL FROM Authors WHERE Author = 'Author Unknown'");
     if(!q.next())
-        q.exec("INSERT INTO Authors(Name, Middle, Surname) VALUES('Unknown', 'Unknown', 'Unknown')");
+        q.exec("INSERT INTO Authors(Author) VALUES('Author Unknown')");
 
     int auth_id = -1;
-    q.exec("SELECT Auth_ID FROM Authors WHERE Surname = 'Unknown'");
+    q.exec("SELECT Auth_ID FROM Authors WHERE Author = 'Author Unknown'");
     if(q.next())
         auth_id = q.value(0).toInt();
 

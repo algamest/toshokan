@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
                 FOREIGN KEY(Pub_ID) REFERENCES Publishers(Pub_ID))");
 
         q.exec("CREATE TABLE Authors(Auth_ID INTEGER PRIMARY KEY, AliasRef_ID INTEGER,\
-                Name VARCHAR, Middle VARCHAR, Surname VARCHAR, Notes VARCHAR,\
+                Author VARCHAR, Notes VARCHAR,\
                 FOREIGN KEY(AliasRef_ID) references Authors(Auth_ID))");
         q.exec("CREATE TABLE Author_Book(Auth_ID INTEGER, Book_ID INTEGER,\
                 FOREIGN KEY(Auth_ID) REFERENCES Authors(Auth_ID) ON DELETE CASCADE,\
